@@ -2391,7 +2391,7 @@ class ProgramNode():
                         self.tdict[key]['prime'].append(v.lower())
 
             elif key == 'description':
-                if source != None and self.channel_config.get_opt('prefered_description') == source and len(value) > 100:
+                if source != None and self.channel_config.get_opt('prefered_description') == source and len(value) > 5:
                     self.set_source_value(key, source, value, value)
                     self.tdict[key]['preferred'] = True
 
