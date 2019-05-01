@@ -142,7 +142,7 @@ class Configure(tvgrabpyAPI.Configure):
         # The default timezone to use in the xmltv output file. Can be overruled in the users configuration.
         self.opt_dict['output_tz'] = 'Europe/Amsterdam'
         # Where to get the json datafile and updates (if different from the API location)
-        self.source_url = 'https://raw.githubusercontent.com/tvgrabbers/sourcematching/master'
+        self.source_url = 'https://raw.githubusercontent.com/kyl416/sourcematching/master'
         self.update_url = 'https://github.com/tvgrabbers/tvgrabpyAPI/releases/latest'
         self.compat_text = '.tvgids.nl'
 
