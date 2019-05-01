@@ -4151,37 +4151,37 @@ class FetchData(URLtypes, Thread):
         lenst = len(psubtitle)
         lendif = abs(lent - lenst)
         # Fixing subtitle both named and added to the title
-        if  0 < lenst < lent and psubtitle.lower() == ptitle[lendif:].lower().strip():
-            ptitle = ptitle[:lendif].strip()
-            if (ptitle[-1] == ':') or (ptitle[-1] == '-'):
-                ptitle = ptitle[:-1].strip()
+        #if  0 < lenst < lent and psubtitle.lower() == ptitle[lendif:].lower().strip():
+        #    ptitle = ptitle[:lendif].strip()
+        #    if (ptitle[-1] == ':') or (ptitle[-1] == '-'):
+        #        ptitle = ptitle[:-1].strip()
 
         # It also happens that the title is both and the subtitle only the title
-        elif 0 < lenst < lent and psubtitle.lower() == ptitle[:lendif].lower():
-            p = psubtitle
-            psubtitle = ptitle[lendif:].lower().strip()
-            ptitle = p
-            if (psubtitle[0] == ':') or (psubtitle[0] == '-'):
-                psubtitle = psubtitle[1:].strip()
+        #elif 0 < lenst < lent and psubtitle.lower() == ptitle[:lendif].lower():
+        #    p = psubtitle
+        #    psubtitle = ptitle[lendif:].lower().strip()
+        #    ptitle = p
+        #    if (psubtitle[0] == ':') or (psubtitle[0] == '-'):
+        #        psubtitle = psubtitle[1:].strip()
 
         # And the other way around
-        elif  lent < lenst and ptitle.lower() == psubtitle[:lent].lower():
-            psubtitle = psubtitle[lent:].strip()
-            if (psubtitle[0] == ':') or (psubtitle[0] == '-'):
-                psubtitle = psubtitle[1:].strip()
+        #elif  lent < lenst and ptitle.lower() == psubtitle[:lent].lower():
+        #    psubtitle = psubtitle[lent:].strip()
+        #    if (psubtitle[0] == ':') or (psubtitle[0] == '-'):
+        #        psubtitle = psubtitle[1:].strip()
 
         # exclude certain programs
-        if  not (ptitle.lower() in self.config.notitlesplit) and not \
-            ('genre' in values and values['genre'].lower() in ['movies','film']):
-            # and do the title split test
-            p = ptitle.split(':', 1)
-            if len(p) >1:
-                self.config.log(self.config.text('fetch', 37, (ptitle, )), 64)
-                # We for now put the first part in 'group name' to compare with other sources
-                pgroup = p[0].strip()
-                ptitle = p[1].strip()
-                if self.config.write_info_files:
-                    self.config.infofiles.addto_detail_list(unicode('Name split = %s + %s' % (pgroup, ptitle)))
+        #if  not (ptitle.lower() in self.config.notitlesplit) and not \
+        #    ('genre' in values and values['genre'].lower() in ['movies','film']):
+        #    # and do the title split test
+        #    p = ptitle.split(':', 1)
+        #    if len(p) >1:
+        #        self.config.log(self.config.text('fetch', 37, (ptitle, )), 64)
+        #        # We for now put the first part in 'group name' to compare with other sources
+        #        pgroup = p[0].strip()
+        #        ptitle = p[1].strip()
+        #        if self.config.write_info_files:
+        #            self.config.infofiles.addto_detail_list(unicode('Name split = %s + %s' % (pgroup, ptitle)))
 
         # Check the Title rename list
         if ptitle.lower() in self.config.titlerename:
