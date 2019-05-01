@@ -2145,12 +2145,12 @@ class ProgramNode():
             return True
 
         self.matchobject.set_seqs(self.match_name, mname)
-        if self.matchobject.ratio() > .8:
+        if self.matchobject.ratio() > .9:
             return True
 
         if self.match_group_name != None:
             self.matchobject.set_seqs(self.match_group_name, mname)
-            if self.matchobject.ratio() > .8:
+            if self.matchobject.ratio() > .9:
                 return True
 
         return False
@@ -2627,7 +2627,7 @@ class ProgramNode():
                 # Check if a groupname matches  any of the names
                 for sn, n in names:
                     self.matchobject.set_seqs(n, v[0].lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         # And if so move groupname/name to name/episode title
                         moveup(s, v)
                         with_gn.remove(s)
@@ -2638,7 +2638,7 @@ class ProgramNode():
                     # And alternately the same with name and any of the episode titles
                     for sn, n in episodes:
                         self.matchobject.set_seqs(n, v[1].lower())
-                        if self.matchobject.ratio() > .8:
+                        if self.matchobject.ratio() > .9:
                             # And if so move groupname/name to name/episode title
                             moveup(s, v)
                             with_gn.remove(s)
@@ -2654,7 +2654,7 @@ class ProgramNode():
                 # Does the groupname match a name?
                 for sn, n in names:
                     self.matchobject.set_seqs(n, v[0].lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         partmatch[0] = True
                         break
 
@@ -2664,7 +2664,7 @@ class ProgramNode():
                         continue
 
                     self.matchobject.set_seqs(n, v[1].lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         partmatch[1] = True
                         break
 
@@ -2674,14 +2674,14 @@ class ProgramNode():
                         continue
 
                     self.matchobject.set_seqs(n, v[2].lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         partmatch[2] = True
                         break
 
                 # Does the name match an episode title?
                 for sn, n in episodes:
                     self.matchobject.set_seqs(n, v[1].lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         partmatch[3] = True
                         break
 
@@ -2715,7 +2715,7 @@ class ProgramNode():
                 for sn, n in names:
                     # Again check if a groupname matches  any of the names
                     self.matchobject.set_seqs(n, v[0].lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         # And if so move groupname/name to name/episode title
                         moveup(s, v)
                         with_gn.remove(s)
@@ -2724,7 +2724,7 @@ class ProgramNode():
 
                     # Or the name
                     self.matchobject.set_seqs(n, v[1].lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         # We remove the groupname
                         removegroupname(s, v)
                         with_gn.remove(s)
@@ -2733,7 +2733,7 @@ class ProgramNode():
 
                     # Or the combined groupnam/name
                     self.matchobject.set_seqs(n,sname.lower())
-                    if self.matchobject.ratio() > .8:
+                    if self.matchobject.ratio() > .9:
                         remerge(s, v)
                         with_gn.remove(s)
                         only_name.append(s)
@@ -2743,7 +2743,7 @@ class ProgramNode():
                     # Again alternately the same with name and any of the episode titles
                     for sn, n in episodes:
                         self.matchobject.set_seqs(n, v[1].lower())
-                        if self.matchobject.ratio() > .8:
+                        if self.matchobject.ratio() > .9:
                             # And if so move groupname/name to name/episode title
                             moveup(s, v)
                             with_gn.remove(s)
