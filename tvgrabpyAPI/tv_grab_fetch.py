@@ -356,7 +356,7 @@ class Functions():
     # end print_time()
 
     def sleep(self):
-        time.sleep(1)
+        time.sleep(.1)
         #time.sleep(random.randint(self.config.opt_dict['nice_time'][0], self.config.opt_dict['nice_time'][1]))
     # end sleep()
 
