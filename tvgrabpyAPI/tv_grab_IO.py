@@ -1435,7 +1435,7 @@ class ProgramCache(Thread):
         self.execute(u"%s)" % (istring))
 
     def run(self):
-        time.sleep(1)
+        time.sleep(.1)
         self.state = 1
         self.open_db()
         self.state = 4

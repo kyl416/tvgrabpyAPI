@@ -260,7 +260,7 @@ class Channel_Config(Thread):
                                 return
 
                             if self.pre_merge.empty():
-                                time.sleep(1)
+                                time.sleep(.1)
 
                             else:
                                 fetched_detail = self.pre_merge.get(True)
@@ -371,7 +371,7 @@ class Channel_Config(Thread):
                         if self.state == 5 and self.ttvdb_counter == 0:
                             break
 
-                        time.sleep(1)
+                        time.sleep(.1)
 
                     else:
                         # We are getting back a detail/ttvdb fetch
