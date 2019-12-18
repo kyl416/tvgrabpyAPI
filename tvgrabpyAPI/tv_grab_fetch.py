@@ -3133,7 +3133,7 @@ class FetchData(URLtypes, Thread):
             laststop[channelid] = ls['laststop']  if isinstance(ls, dict) and \
                 isinstance(ls['laststop'], datetime.datetime) else None
 
-        max_fetch_days = 6
+        max_fetch_days = 14
         max_failure_count = 4
         # Just process the days retrieved from the cache
         if self.config.opt_dict['only_cache']:
