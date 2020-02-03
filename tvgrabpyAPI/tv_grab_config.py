@@ -124,10 +124,10 @@ except NameError:
 api_name = u'tv_grab_py_API'
 api_major = 1
 api_minor = 0
-api_patch = 9
-api_patchdate = u'20190428'
+api_patch = 10
+api_patchdate = u'20200202'
 api_alfa = False
-api_beta = False
+api_beta = True
 
 def version():
     return (api_name, api_major, api_minor, api_patch, api_patchdate, api_beta, api_alfa)
@@ -2125,6 +2125,7 @@ class Configure:
             self.coutrytrans = gitdata_dict("coutrytrans")
             self.notitlesplit = gitdata_value("notitlesplit", list)
             self.user_agents = gitdata_value("user_agents", list, self.user_agents)
+            self.user_agents2 = gitdata_value("user_agents2", list, self.user_agents)
             self.ttvdb_json = gitdata_dict("ttvdb")
             for k in self.xml_output.logo_provider.keys():
                 if k not in self.xml_output.logo_source_preference:

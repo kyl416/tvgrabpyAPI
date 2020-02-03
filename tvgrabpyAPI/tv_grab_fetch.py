@@ -162,12 +162,17 @@ class Functions():
         return self.channel_counters[chanid][cnt_type][source_id]
     # end get_counter()
 
-    def get_page(self, url, encoding = None, accept_header = None, txtdata = None, is_json = False):
+    def get_page(self, url, *args, **kwargs):
+    #encoding = None, accept_header = None, txtdata = None, is_json = False, alt_useragent = False):
         """
         Wrapper around get_page_internal to catch the
         timeout exception
         """
         try:
+            encoding = None if len(args) < 1 else args[0]
+            accept_header = None if len(args) < 2 else args[1]
+            txtdata = None if len(args) < 3 else args[2]
+            is_json = None if len(args) < 4 else args[3]
             if isinstance(accept_header, dict):
                 txtheaders = accept_header
 
@@ -178,7 +183,15 @@ class Functions():
                 txtheaders = {}
 
             txtheaders['Keep-Alive']  = '300'
-            txtheaders['User-Agent'] = self.config.user_agents[random.randint(0, len(self.config.user_agents)-1)]
+            if kwargs.get('alt_useragent', False):
+                txtheaders['User-Agent'] = self.config.user_agents2[random.randint(0, len(self.config.user_agents2)-1)]
+
+            else:
+                txtheaders['User-Agent'] = self.config.user_agents[random.randint(0, len(self.config.user_agents)-1)]
+
+            if kwargs.get('print_test', False):
+                kwargs.get('test_output', sys.stdout).write(u'txtheaders = %s\n' % txtheaders)
+
             fu = FetchURL(self.config, url, txtdata, txtheaders, encoding, is_json)
             self.max_fetches.acquire()
             fu.start()
@@ -1997,28 +2010,30 @@ class FetchData(URLtypes, Thread):
             self.is_virtual = self.source_data.get('is_virtual', False)
             self.detail_processor = self.source_data.get('detail_processor', False)
             self.site_tz = self.source_data.get('site-tz', pytz.utc)
+            self.alt_useragent = self.source_data.get('alt_useragent', False)
             if self.detail_processor:
                 if self.proc_id not in self.config.detail_sources:
                     self.detail_processor = False
 
-                self.config.detail_keys[self.proc_id] = {}
-                self.detail_processor = False
-                if 'detail' in self.source_data["detail_defs"]:
-                    self.detail_processor = True
-                    self.update_base = self.source_data["detail"].get("update-base", [])
-                    self.detail_keys = self.source_data['detail']['provides']
-                    self.config.detail_keys[self.proc_id]['detail'] = self.detail_keys
-                    for k in self.detail_keys:
-                        if k not in self.config.detail_keys['all']:
-                            self.config.detail_keys['all'].append(k)
+                else:
+                    self.config.detail_keys[self.proc_id] = {}
+                    self.detail_processor = False
+                    if 'detail' in self.source_data["detail_defs"]:
+                        self.detail_processor = True
+                        self.update_base = self.source_data["detail"].get("update-base", [])
+                        self.detail_keys = self.source_data['detail']['provides']
+                        self.config.detail_keys[self.proc_id]['detail'] = self.detail_keys
+                        for k in self.detail_keys:
+                            if k not in self.config.detail_keys['all']:
+                                self.config.detail_keys['all'].append(k)
 
-                if 'detail2' in self.source_data["detail_defs"]:
-                    self.detail_processor = True
-                    self.detail2_keys = self.source_data['detail2']['provides']
-                    self.config.detail_keys[self.proc_id]['detail2'] = self.detail2_keys
-                    for k in self.detail2_keys:
-                        if k not in self.config.detail_keys['all']:
-                            self.config.detail_keys['all'].append(k)
+                    if 'detail2' in self.source_data["detail_defs"]:
+                        self.detail_processor = True
+                        self.detail2_keys = self.source_data['detail2']['provides']
+                        self.config.detail_keys[self.proc_id]['detail2'] = self.detail2_keys
+                        for k in self.detail2_keys:
+                            if k not in self.config.detail_keys['all']:
+                                self.config.detail_keys['all'].append(k)
 
             if self.proc_id in self.config.detail_sources and not self.detail_processor:
                 self.config.detail_sources.remove(self.proc_id)
@@ -2382,6 +2397,7 @@ class FetchData(URLtypes, Thread):
                 if self.print_roottree:
                     if self.roottree_output == sys.stdout:
                         self.roottree_output.write(u'pdata = %s' % pdata)
+                        self.roottree_output.write(u'alt_useragent = %s' % self.alt_useragent)
                         prtdata = ('url', 'encoding', 'accept_header', 'url_data', 'is_json')
                         for index in range(len(url)):
                             self.roottree_output.write(('%s = %s'%
@@ -2389,13 +2405,17 @@ class FetchData(URLtypes, Thread):
 
                     else:
                         self.roottree_output.write(u'pdata = %s\n' % pdata)
+                        self.roottree_output.write(u'alt_useragent = %s\n' % self.alt_useragent)
                         prtdata = ('url', 'encoding', 'accept_header', 'url_data', 'is_json')
                         for index in range(len(url)):
                             self.roottree_output.write((u'%s = %s\n'% (prtdata[index], url[index])))
 
                 update_counter(ptype, "fetched")
                 # Get the Page
-                self.page_status, page, pcode = self.functions.get_page(*url)
+                self.page_status, page, pcode = self.functions.get_page(
+                        print_test = self.print_roottree,
+                        test_output = self.roottree_output,
+                        alt_useragent = self.alt_useragent, *url)
                 # Do an URL swap if needed and try again
                 if pcode != None and int(pcode) ==  self.source_data['alt-url-code']:
                     switch_url()
