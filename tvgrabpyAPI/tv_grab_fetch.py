@@ -162,37 +162,35 @@ class Functions():
         return self.channel_counters[chanid][cnt_type][source_id]
     # end get_counter()
 
-    def get_page(self, url, *args, **kwargs):
-    #encoding = None, accept_header = None, txtdata = None, is_json = False, alt_useragent = False):
+    def get_page(self, url, *args):
         """
         Wrapper around get_page_internal to catch the
         timeout exception
         """
         try:
-            encoding = None if len(args) < 1 else args[0]
+            data = {
+            'encoding': None if len(args) < 1 else args[0],
+            'txtdata': None if len(args) < 3 else args[2],
+            'is_json': None if len(args) < 4 else args[3]}
             accept_header = None if len(args) < 2 else args[1]
-            txtdata = None if len(args) < 3 else args[2]
-            is_json = None if len(args) < 4 else args[3]
             if isinstance(accept_header, dict):
-                txtheaders = accept_header
+                data['headers'] = accept_header
 
             elif isinstance(accept_header, (str,unicode)) and accept_header!= '':
-                txtheaders = {'Accept': accept_header}
+                data['headers'] = {'Accept': accept_header}
 
             else:
-                txtheaders = {}
+                data['headers'] = {}
 
-            txtheaders['Keep-Alive']  = '300'
-            if kwargs.get('alt_useragent', False):
-                txtheaders['User-Agent'] = self.config.user_agents2[random.randint(0, len(self.config.user_agents2)-1)]
+            data['headers']['Keep-Alive']  = '300'
+            if not 'User-Agent'in data['headers'].keys():
+                data['headers']['User-Agent'] = self.config.user_agents[random.randint(0, len(self.config.user_agents)-1)]
 
-            else:
-                txtheaders['User-Agent'] = self.config.user_agents[random.randint(0, len(self.config.user_agents)-1)]
+            cookiejar = None if len(args) < 5 else args[4]
+            if isinstance(cookiejar, dict) and len(cookiejar) > 0:
+                data['cookiejar'] = cookiejar
 
-            if kwargs.get('print_test', False):
-                kwargs.get('test_output', sys.stdout).write(u'txtheaders = %s\n' % txtheaders)
-
-            fu = FetchURL(self.config, url, txtdata, txtheaders, encoding, is_json)
+            fu = FetchURL(self.config, url, **data)
             self.max_fetches.acquire()
             fu.start()
             fu.join(self.config.opt_dict['global_timeout']+1)
@@ -261,7 +259,7 @@ class Functions():
                         fle = self.config.IO_func.read_pickle(fn)
                         if fle != None and data_value(["dtversion"], fle, tuple) == conv_dd.dtversion() \
                             and data_value(["tvgversion"], fle, tuple, None) == \
-                                tuple(self.config.version(False, True)[1:4]):
+                                tuple(self.config.version(False, True)[1:5]):
                             return fle
 
             except:
@@ -270,12 +268,15 @@ class Functions():
         # We try to download unless the only_local_sourcefiles flag is set
         if not self.config.only_local_sourcefiles:
             try:
-                txtheaders = {'Keep-Alive' : '300',
+                headers = {'Keep-Alive' : '300',
                               'User-Agent' : self.config.user_agents[random.randint(0, len(self.config.user_agents)-1)] }
 
                 url = '%s/%s.json' % (data.get('url', self.config.api_source_url), name)
                 self.config.log(self.config.text('fetch', 1,(name, ), 'other'), 1)
-                fu = FetchURL(self.config, url, None, txtheaders, 'utf-8', True)
+                fu = FetchURL(self.config, url,
+                        headers = headers,
+                        enoding = 'utf-8',
+                        is_json = True)
                 self.max_fetches.acquire()
                 self.update_counter('jsondata', source)
                 fu.start()
@@ -394,17 +395,24 @@ class FetchURL(Thread):
     """
     A simple thread to fetch a url with a timeout
     """
-    def __init__ (self, config, url, txtdata = None, txtheaders = None, encoding = None, is_json = False):
+    def __init__ (self, config, url, **kwargs):
         Thread.__init__(self, name = 'fetching')
         self.thread_type = 'fetching'
         self.state = 0
         self.config = config
         self.func = self.config.fetch_func
         self.url = url
-        self.txtdata = txtdata
-        self.txtheaders = txtheaders
-        self.encoding = encoding
-        self.is_json = is_json
+        self.url_data = {
+            'params': kwargs.get('txtdata', None),
+            'headers': kwargs.get('headers', None),
+            'timeout': self.config.opt_dict['global_timeout']/2,
+            'stream': True}
+        cookiejar = kwargs.get('cookiejar', None)
+        if isinstance(cookiejar, dict) and len(cookiejar) > 0:
+            self.url_data['cookies'] = cookiejar
+
+        self.encoding = kwargs.get('encoding',None )
+        self.is_json = kwargs.get('is_json', False)
         self.raw = ''
         self.result = None
         self.page_status = dte.dtDataOK
@@ -429,11 +437,7 @@ class FetchURL(Thread):
         the specified number of timeout seconds.
         """
         try:
-            self.url_request = requests.get(self.url,
-                            headers = self.txtheaders,
-                            params = self.txtdata,
-                            timeout=self.config.opt_dict['global_timeout']/2,
-                            stream=True)
+            self.url_request = requests.get(self.url, **self.url_data)
             self.status_code = self.url_request.status_code
             if self.url_request.status_code != requests.codes.ok:
                 if self.status_code == 500 and len(self.url_request.text) > 0 and \
@@ -2010,7 +2014,6 @@ class FetchData(URLtypes, Thread):
             self.is_virtual = self.source_data.get('is_virtual', False)
             self.detail_processor = self.source_data.get('detail_processor', False)
             self.site_tz = self.source_data.get('site-tz', pytz.utc)
-            self.alt_useragent = self.source_data.get('alt_useragent', False)
             if self.detail_processor:
                 if self.proc_id not in self.config.detail_sources:
                     self.detail_processor = False
@@ -2387,7 +2390,11 @@ class FetchData(URLtypes, Thread):
             pdata[ 'cnt-offset'] = pdata.get('cnt_offset', 0)
             for retry in (0, 1):
                 # Get the URL
-                url = self.datatrees[ptype].get_url(pdata, False)
+                url = list(self.datatrees[ptype].get_url(pdata, False))
+                url.append(self.source_data[ptype]["cookiejar"])
+                if self.source_data[ptype]["alt_useragent"]:
+                    url[2]['User-Agent'] = self.config.user_agents2[random.randint(0, len(self.config.user_agents2)-1)]
+
                 if url == None:
                     self.config.log([self.config.text('fetch', 25, (ptype, self.source))], 1)
                     update_counter(ptype)
@@ -2397,25 +2404,20 @@ class FetchData(URLtypes, Thread):
                 if self.print_roottree:
                     if self.roottree_output == sys.stdout:
                         self.roottree_output.write(u'pdata = %s' % pdata)
-                        self.roottree_output.write(u'alt_useragent = %s' % self.alt_useragent)
-                        prtdata = ('url', 'encoding', 'accept_header', 'url_data', 'is_json')
+                        prtdata = ('url', 'encoding', 'accept_header', 'url_data', 'is_json', 'cookiejar')
                         for index in range(len(url)):
                             self.roottree_output.write(('%s = %s'%
                                 (prtdata[index], url[index])).encode('utf-8', 'replace'))
 
                     else:
                         self.roottree_output.write(u'pdata = %s\n' % pdata)
-                        self.roottree_output.write(u'alt_useragent = %s\n' % self.alt_useragent)
-                        prtdata = ('url', 'encoding', 'accept_header', 'url_data', 'is_json')
+                        prtdata = ('url', 'encoding', 'accept_header', 'url_data', 'is_json', 'cookiejar')
                         for index in range(len(url)):
                             self.roottree_output.write((u'%s = %s\n'% (prtdata[index], url[index])))
 
                 update_counter(ptype, "fetched")
                 # Get the Page
-                self.page_status, page, pcode = self.functions.get_page(
-                        print_test = self.print_roottree,
-                        test_output = self.roottree_output,
-                        alt_useragent = self.alt_useragent, *url)
+                self.page_status, page, pcode = self.functions.get_page(*url)
                 # Do an URL swap if needed and try again
                 if pcode != None and int(pcode) ==  self.source_data['alt-url-code']:
                     switch_url()
