@@ -2884,6 +2884,7 @@ class FetchData(URLtypes, Thread):
                             # Check for a program split by the day border
                             if p[ 'name'].lower() == p2[ 'name'].lower() and p['stop-time'] >= p2['start-time'] \
                               and p['prog_ID'] == p2['prog_ID'] \
+                              and p['gen_ID'] == p2['gen_ID'] \
                               and ((not 'episode title' in p and not 'episode title' in p2) \
                                 or ('episode title' in p and 'episode title' in p2 \
                                 and p[ 'episode title'].lower() == p2[ 'episode title'].lower())):
