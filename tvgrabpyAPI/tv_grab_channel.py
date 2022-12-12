@@ -899,11 +899,11 @@ class ChannelNode():
             self.current_stats['groups'] = len(self.group_slots)
             self.current_stats['start-str'] = '            '
             if isinstance(self.current_stats['start'], datetime.datetime):
-                self.current_stats['start-str'] = self.config.in_output_tz(self.current_stats['start']).strftime('%d-%b %H:%M')
+                self.current_stats['start-str'] = self.config.in_output_tz(self.current_stats['start']).strftime('%d-%b %H:%M:%S')
 
             self.current_stats['stop-str'] = '            '
             if isinstance(self.current_stats['stop'], datetime.datetime):
-                self.current_stats['stop-str'] = self.config.in_output_tz(self.current_stats['stop']).strftime('%d-%b %H:%M')
+                self.current_stats['stop-str'] = self.config.in_output_tz(self.current_stats['stop']).strftime('%d-%b %H:%M:%S')
             return self.current_stats
 
     def get_adding_stats(self, programs, group_slots = None):
@@ -956,11 +956,11 @@ class ChannelNode():
 
                     self.adding_stats['start-str'] = '            '
                     if isinstance(self.adding_stats['start'], datetime.datetime):
-                        self.adding_stats['start-str'] = self.config.in_output_tz(self.adding_stats['start']).strftime('%d-%b %H:%M')
+                        self.adding_stats['start-str'] = self.config.in_output_tz(self.adding_stats['start']).strftime('%d-%b %H:%M:%S')
 
                     self.adding_stats['stop-str'] = '            '
                     if isinstance(self.adding_stats['stop'], datetime.datetime):
-                        self.adding_stats['stop-str'] = self.config.in_output_tz(self.adding_stats['stop']).strftime('%d-%b %H:%M')
+                        self.adding_stats['stop-str'] = self.config.in_output_tz(self.adding_stats['stop']).strftime('%d-%b %H:%M:%S')
 
                     return True
 
@@ -1555,7 +1555,7 @@ class ChannelNode():
         with self.node_lock:
             # Remove any program of zero length
             for pn in self:
-                if abs(pn.stop - pn.start) < datetime.timedelta(minutes = 1):
+                if abs(pn.stop - pn.start) < datetime.timedelta(seconds = 1):
                     self.config.log(self.config.text('merge', 2, ('%s: %s' % (pn.get_title(), pn.get_start_stop()), self.name)), 64, 3)
                     self.remove_node(pn)
 
@@ -1565,7 +1565,7 @@ class ChannelNode():
                     if gap.abs_length > self.max_overlap:
                         continue
 
-                    self.config.log(self.config.text('merge', 1, (gap.length.total_seconds() / 60, gap.start.strftime('%d %b %H:%M'), self.name)), 64, 3)
+                    self.config.log(self.config.text('merge', 1, (gap.length.total_seconds() / 60, gap.start.strftime('%d %b %H:%M:%S'), self.name)), 64, 3)
                     # stop-time of previous program wins
                     if overlap_strategy == 'stop':
                         gap.next.adjust_start(gap.start)
@@ -1910,7 +1910,7 @@ class ChannelNode():
                 pstart = self.config.in_output_tz(tdict.start)
                 pstop = self.config.in_output_tz(tdict.stop)
                 if printable and tdict.is_groupslot:
-                    return '#%s - %s' % (pstart.strftime('%d %b %H:%M'), pstop.strftime('%d %b %H:%M'))
+                    return '#%s - %s' % (pstart.strftime('%d %b %H:%M:%S'), pstop.strftime('%d %b %H:%M:%S'))
 
             elif isinstance(tdict, dict) and 'start-time' in tdict and 'stop-time' in tdict:
                 pstart = self.config.in_output_tz(tdict['start-time'])
@@ -1921,10 +1921,10 @@ class ChannelNode():
 
             if printable:
                 if only_start:
-                    return '%s' % (pstart.strftime('%d %b %H:%M %Z'), )
+                    return '%s' % (pstart.strftime('%d %b %H:%M:%S %Z'), )
 
                 else:
-                    return ' %s - %s' % (pstart.strftime('%d %b %H:%M'), pstop.strftime('%d %b %H:%M %Z'))
+                    return ' %s - %s' % (pstart.strftime('%d %b %H:%M:%S'), pstop.strftime('%d %b %H:%M:%S %Z'))
 
             return (pstart, pstop)
 
@@ -2873,10 +2873,10 @@ class ProgramNode():
 
     def get_value(self, key, source = None):
         if key == 'start':
-            return self.config.in_output_tz(self.start).strftime('%d %b %H:%M')
+            return self.config.in_output_tz(self.start).strftime('%d %b %H:%M:%S')
 
         if key == 'stop':
-            return self.config.in_output_tz(self.stop).strftime('%d %b %H:%M')
+            return self.config.in_output_tz(self.stop).strftime('%d %b %H:%M:%S')
 
         if key == 'ID':
             if "prog_ID" in self.tdict.keys():
@@ -3037,7 +3037,7 @@ class GapNode():
             pstart = self.config.in_output_tz(self.start)
             pstop = self.config.in_output_tz(self.stop)
             if printable:
-                return ' #%s - %s' % (pstart.strftime('%d %b %H:%M'), pstop.strftime('%d %b %H:%M'))
+                return ' #%s - %s' % (pstart.strftime('%d %b %H:%M:%S'), pstop.strftime('%d %b %H:%M:%S'))
 
             return (pstart, pstop)
 

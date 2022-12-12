@@ -144,7 +144,7 @@ def grabber_main(config):
             return(x)
 
         start_time = config.in_output_tz('now')
-        config.log(config.text('config', 5, (start_time.strftime('%Y-%m-%d %H:%M'), ), 'other'),4, 1)
+        config.log(config.text('config', 5, (start_time.strftime('%Y-%m-%d %H:%M:%S'), ), 'other'),4, 1)
 
         # Start the seperate fetching threads
         for source in config.channelsource.values():
@@ -3507,8 +3507,8 @@ class Configure:
 
         log_array = ['\n', ltext(72), '\n']
         log_array.append(ltext(73, (self.xml_output.program_count, self.chan_count)))
-        log_array.append(ltext(74, (self.in_output_tz(start).strftime('%Y-%m-%d %H:%M'), )))
-        log_array.append(ltext(75, (self.in_output_tz(end).strftime('%Y-%m-%d %H:%M'), )))
+        log_array.append(ltext(74, (self.in_output_tz(start).strftime('%Y-%m-%d %H:%M:%S'), )))
+        log_array.append(ltext(75, (self.in_output_tz(end).strftime('%Y-%m-%d %H:%M:%S'), )))
         log_array.append(ltext(76, (end - start, )))
         fetch_count = cdata('base', 'total') \
                             + cdata('detail', 'total') \

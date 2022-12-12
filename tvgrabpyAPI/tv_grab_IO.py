@@ -660,7 +660,7 @@ class Logging(Thread):
                 return
 
             if subject == None:
-                subject = 'Tv_grab_nl3_py %s' % self.config.in_output_tz('now').strftime('%Y-%m-%d %H:%M')
+                subject = 'Tv_grab_nl3_py %s' % self.config.in_output_tz('now').strftime('%Y-%m-%d %H:%M:%S')
 
             msg = MIMEText(msg, _charset='utf-8')
             msg['Subject'] = subject
@@ -2981,10 +2981,10 @@ class InfoFiles():
 
             if isinstance(tdict[vname], datetime.datetime):
                 if vname == 'start-time' and 'is_gs' in tdict:
-                    return u'#%s' % self.config.in_output_tz(tdict[vname]).strftime('%d %b %H:%M')
+                    return u'#%s' % self.config.in_output_tz(tdict[vname]).strftime('%d %b %H:%M:%S')
 
                 else:
-                    return self.config.in_output_tz(tdict[vname]).strftime('%d %b %H:%M')
+                    return self.config.in_output_tz(tdict[vname]).strftime('%d %b %H:%M:%S')
 
             if isinstance(tdict[vname], bool):
                 if tdict[vname]:
@@ -3642,7 +3642,7 @@ class test_Source():
                         continue
                     counter += 1
                     detailids[counter] = p['detail_url']
-                    self.config.log('[%3.0f] %s: %s\n' % (counter, self.config.in_output_tz(p['start-time']).strftime('%d %b %H:%M'), p['name']), log_target = 1)
+                    self.config.log('[%3.0f] %s: %s\n' % (counter, self.config.in_output_tz(p['start-time']).strftime('%d %b %H:%M:%S'), p['name']), log_target = 1)
 
             try:
                 while True:

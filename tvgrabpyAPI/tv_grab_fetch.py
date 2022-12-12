@@ -366,7 +366,7 @@ class Functions():
 
     def print_time(self, time):
         if isinstance(time, datetime.datetime):
-            return time.strftime('%d %b %H:%M %Z')
+            return time.strftime('%d %b %H:%M:%S %Z')
     # end print_time()
 
     def sleep(self):
@@ -2831,7 +2831,7 @@ class FetchData(URLtypes, Thread):
 
                         elif detail_url != None:
                             url_list.append(detail_url)
-                            logstring = u' %s: %s' % (p['start-time'].strftime('%d %b %H:%M'), p['name'])
+                            logstring = u' %s: %s' % (p['start-time'].strftime('%d %b %H:%M:%S'), p['name'])
 
                             sources = {self.proc_id: {
                                     'chanid': chanid,
@@ -3802,10 +3802,10 @@ class FetchData(URLtypes, Thread):
     # Helper functions
     def print_result(self, tdict, channelid):
         try:
-            start = self.config.in_output_tz(tdict['start-time']).strftime('%d %b %H:%M')
+            start = self.config.in_output_tz(tdict['start-time']).strftime('%d %b %H:%M:%S')
 
         except:
-            start = '? ??? ?:??'
+            start = '? ??? ?:??:??'
 
         if self.data_output == sys.stdout:
             self.data_output.write('%s: %s' % (channelid, start))
